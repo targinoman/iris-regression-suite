@@ -31,7 +31,7 @@ Test names carry the convention: a leading `[FINDING-00x]` is a vulnerability ch
 ## Setup
 
 ```bash
-git clone <repo>
+git clone https://github.com/targinoman/iris-regression-suite.git
 cd iris-regression-suite
 npm install
 npx playwright install        # browser binaries (for the UI layer)
@@ -168,18 +168,3 @@ Decision tables A and B mean each rule has at least one case; counts below are t
 
 `harness-health.spec.ts` adds `[CONTROL]` checks that the per-role storageState yields an
 authenticated session — green proves the harness, not the product.
-
----
-
-## Notes
-
-- **All file content is English** (comments, strings, test names, messages).
-- **No `any`.** Types are explicit; uncertain shapes use `unknown` + narrowing.
-- Tier choice follows the **brief's role matrix** (the intent), not the server's 403
-  messages (which reflect the implementation, bugs included). So UI tests run as the
-  legitimate tier: **009 as Junior**, **011/012 as Senior** — these run on a clean clone
-  with no Director. The dashboard `cutoff`/`sessions_counted`, the browser index comparison,
-  the lifecycle tests, and the **dashboard/export UI tests (014, 015)** read Director-only
-  data and therefore **skip without `DIRECTOR_PASSWORD`**.
-- A few target-specific ids (a real chamber/session for read probes, the foreign subject
-  ids for IDOR) live in `config.ts` and are easy to adjust if the target data changes.
