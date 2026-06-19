@@ -8,9 +8,9 @@ import { DashboardPage } from '../../src/pages/DashboardPage';
  * in the dedicated Approvals view). Correct behavior: clicking Approve on the dashboard
  * invokes the approve API. Today no request fires → intentional red.
  *
- * Run as Senior: the brief grants "approve and manage sessions" to the Senior Test
- * Coordinator, so Senior is the legitimate tier for approvals (no Director dependency). A
- * disposable pending-approval session is seeded as Senior so the list has a row.
+ * A disposable pending-approval session is seeded as Senior so the list has at least one
+ * row, then we click the first Approve control (all are dead on the dashboard). Run as
+ * Senior — the brief grants "approve and manage sessions" to the Senior Test Coordinator.
  */
 test.describe('FINDING-011 — dashboard approval controls (browser)', () => {
   test('[FINDING-011] clicking Approve on the dashboard pending-approval list must call the approve API', async ({
@@ -19,16 +19,16 @@ test.describe('FINDING-011 — dashboard approval controls (browser)', () => {
   }) => {
     const factory = new SessionFactory(seniorRequest);
     try {
-      const seeded = await factory.createSession(); // starts in pending-approval
+      await factory.createSession(); // ensure at least one pending-approval row exists
 
       const dashboard = new DashboardPage(seniorPage);
       await dashboard.goto();
 
-      const approve = dashboard.approveButton(seeded.id);
+      const approve = dashboard.anyApproveButton();
       await expect(
         approve,
-        'the seeded pending-approval row should render on the dashboard',
-      ).toBeVisible();
+        'a pending-approval row should render on the dashboard',
+      ).toBeVisible({ timeout: 15000 });
 
       const approveRequest = seniorPage
         .waitForRequest(

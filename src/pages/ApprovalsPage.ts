@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { escapeRegExp } from '../utils/regex';
+import { gotoAdminSection } from './spaNavigation';
 
 /**
  * Page object for the dedicated Approvals view (/admin/approvals), where the Approve/Reject
@@ -7,12 +8,10 @@ import { escapeRegExp } from '../utils/regex';
  * name; the `title` attribute is the tooltip under test in FINDING-012.
  */
 export class ApprovalsPage {
-  static readonly PATH = '/admin/approvals';
-
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto(ApprovalsPage.PATH);
+    await gotoAdminSection(this.page, 'Approvals');
   }
 
   approveButton(sessionId: string): Locator {

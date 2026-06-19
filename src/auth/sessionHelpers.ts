@@ -90,6 +90,16 @@ export function withEmptySignature(cookieValue: string, role: string): string {
   return `${role}.${timestamp}.`;
 }
 
+/** Parses the `detail` message from a JSON error body, or '' if absent / not JSON. */
+export function detailOf(body: string): string {
+  try {
+    const parsed = JSON.parse(body) as { detail?: unknown };
+    return typeof parsed.detail === 'string' ? parsed.detail : '';
+  } catch {
+    return '';
+  }
+}
+
 /** Flips a single character so the result is guaranteed different from the input. */
 export function flipOneChar(value: string): string {
   if (value.length === 0) {

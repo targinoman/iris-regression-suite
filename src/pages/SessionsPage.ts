@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { gotoAdminSection } from './spaNavigation';
 
 /**
  * Page object for the Test Sessions view (/admin/sessions) and its multi-step "New session"
@@ -6,12 +7,10 @@ import { Locator, Page } from '@playwright/test';
  * Locators live here.
  */
 export class SessionsPage {
-  static readonly PATH = '/admin/sessions';
-
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto(SessionsPage.PATH);
+    await gotoAdminSection(this.page, 'Sessions');
   }
 
   newSessionButton(): Locator {

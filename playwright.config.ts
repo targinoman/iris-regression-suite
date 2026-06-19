@@ -12,6 +12,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     extraHTTPHeaders: { 'X-Case-Token': CASE_TOKEN },
     trace: 'on-first-retry',
+    video: 'retain-on-failure'
   },
   projects: [
     {

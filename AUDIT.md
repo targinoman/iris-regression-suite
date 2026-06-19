@@ -4,7 +4,8 @@
 **Candidate:** Rafael Targino
 **Surface under review:** Iris Sciences Operational Console (`https://iris.revelarautomation.com`)
 **Date:** 2026-06-16
-**Status:** Living document — investigation in progress
+**Status:** Final — engagement complete
+**Summary:** 16 findings across both review axes — 2 Critical, 6 High, 5 Medium, 3 Low — plus 2 confirmed-secure controls and the reward disbursement notice obtained. Deliverables: this memo, an automated Playwright + TypeScript regression suite, and the disbursement notice.
 
 ---
 
@@ -277,13 +278,13 @@ State-changing operations leave no trace, so there is no accountability for who 
 **Status:** Confirmed
 
 **Observation**
-In the Dashboard "Pending approvals" list, the Approve and Reject buttons do nothing when clicked. The same actions work from the dedicated Approvals view, so the handlers exist but are not wired to the controls on the dashboard surface.
+In the Dashboard "Pending approvals" list, the Approve and Reject buttons do nothing when clicked. The same actions work from the dedicated Approvals view, so the handlers exist but are not wired to the controls on the dashboard surface. The client bundle confirms the root cause at the code level: both surfaces render each pending row with the same row component, but the dashboard maps it without the click handlers the Approvals view supplies. The Approvals view passes `onApprove`/`onReject` callbacks; the dashboard maps the row with only `subjectId`, `requester`, and `action`, leaving each button's `onClick` undefined. The buttons therefore render with identical labels but are inert by construction, not by a runtime error. A second, related defect: the dashboard "Pending approvals" card and the Approvals view read from different sources, so a session created via the API appears in the Approvals view but not in the dashboard card.
 
 **Impact**
 A primary documented action is broken on the main landing surface. A coordinator working from the dashboard cannot approve or reject without navigating elsewhere.
 
 **Triage:** Regression-worthy — **Yes** (UI).
-*Rationale: assert that the dashboard approve/reject controls invoke the approval API and reflect the result.*
+*Rationale: drive off a pending Approve control actually rendered in the dashboard card and assert that clicking it invokes no approval API call (dead control), with the Approvals-view click as the positive control that does. Do not depend on a seeded session appearing in the dashboard card, since that card and the Approvals view read from different sources.*
 
 ---
 
@@ -333,13 +334,13 @@ Any party who reads the client bundle can assume the highest console identity wi
 **Status:** Confirmed
 
 **Observation**
-The dashboard "Recent activity" feed renders raw field values with no truncation or wrapping. The reward-disbursed entry carries the 64-character case token, which overflows its container and pushes content outside the panel bounds. The same record renders cleanly in the dedicated Audit & incident log view, so the defect is specific to the activity-feed layout, not the data.
+The dashboard "Recent activity" feed renders raw field values with no truncation or wrapping. The reward-disbursed entry carries the 64-character case token, which overflows its container and pushes content outside the panel bounds. The same record renders cleanly in the dedicated Audit & incident log view, so the defect is specific to the activity-feed layout, not the data. A separate observation about the feed itself: it does not reflect normal operations. Ordinary lifecycle actions (create, approve, start, complete) never appear in it — consistent with FINDING-010, where those actions are not logged — and during this engagement the only event that caused the feed to update was filing the reward disbursement notice through the console path. The overflowing entry is therefore the disbursement record itself, surfaced by the one path that does write to the feed.
 
 **Impact**
 Cosmetic, but it shows the activity feed assumes short values and has no overflow handling; any long identifier surfaced there will break the layout.
 
-**Triage:** Regression-worthy — **Yes** (UI).
-*Rationale: assert that long field values in the activity feed are truncated or wrapped within the container.*
+**Triage:** Regression-worthy — **deferred to a documented skip.**
+*Rationale: the overflow is confirmed, but it cannot be reproduced on demand. Because the feed is not driven by normal actions (only the one-time disbursement entry surfaced a value long enough to overflow), there is no honest, repeatable oracle that seeds a long value and observes the break, so the automated check is parked as a skip in the same class as FINDING-010 and FINDING-013. If the feed is later wired to reflect live actions, the test becomes runnable: assert that long field values in the activity feed are truncated or wrapped within the container.*
 
 ---
 
@@ -360,6 +361,23 @@ A documented capability (two of three formats) is absent: the PDF control is a d
 
 ---
 
+### FINDING-016 — Logout does not invalidate the session server-side
+
+**Severity:** Medium (mitigated by `HttpOnly`, `Secure`, and a bounded cookie `Expires`)
+**Type:** Identification and Authentication Failures — OWASP A07:2021 (no server-side session revocation)
+**Status:** Confirmed
+
+**Observation**
+The `iris_role_session` cookie is a stateless `itsdangerous`-signed value with no server-side revocation list. After `POST /api/auth/logout`, the server clears the client cookie, but a previously captured copy of the same cookie value continues to authenticate: replaying it on `GET /api/auth/me` returns the user's record (HTTP 200), not a rejection. The server distinguishes three states — **no cookie → `Not logged in`**, **bad signature → `Invalid session`**, **valid signature → authenticated, regardless of whether logout was called.** (An earlier manual check appeared to show logout revoking the session, but that request had simply lost the cookie from the jar; `Not logged in` denotes an absent cookie, not a revoked one. Re-sending the captured value authenticates. The automated regression test caught the discrepancy that the manual check missed.)
+
+**Impact**
+Logout gives a false assurance of session termination. A cookie captured before logout stays usable for the remainder of its validity window, and the user has no way to terminate it. Mitigating factors limit the realistic exposure: the cookie is `HttpOnly` (no script access) and `Secure` (HTTPS only), and carries a bounded `Expires`. The server-side `max_age` enforcement of the signed token was not separately confirmed and is worth checking — if the server does not enforce expiry, the client-side `Expires` is only a hint and the usable window is wider than it appears.
+
+**Triage:** Regression-worthy — **Yes** (reclassified from the former PC-02 positive control).
+*Rationale: assert that a cookie reused after `POST /api/auth/logout` is rejected. The test is red today and turns green when server-side revocation (a deny list, a per-session nonce, or rotation on logout) is added.*
+
+---
+
 - **`/api/admin/roles` readable by Junior, discloses the undocumented Chief Scientist (id 275).** The endpoint is self-described as a diagnostic for API probing, so it appears intentional. Logged as information disclosure, not elevated. *Not regression-worthy.*
 - **Audit `target_kind` does not match `target_id` prefix** (e.g., `C-`-prefixed ids labeled `subject`, `S-`-prefixed ids labeled `chamber`). Possible low-severity data-integrity bug, or intentional noise. *Needs confirmation before classifying.*
 - **`luncheon Q3 noted`** recurs as an audit action and reads as filler/noise. Noted, no action.
@@ -376,15 +394,13 @@ Independently of that escalation, the access-control axis fails at several point
 
 ## Confirmed-Secure Controls (Positive Findings)
 
-A thorough audit reports what held, not only what failed. The controls below were tested and confirmed sound. Together they establish that **authentication and session integrity are solid**; the access-control failures documented above are failures of **authorization after a valid identity is established**, not failures of the identity mechanism itself. This sharpens the risk model and points the fix at server-side authorization, not at the auth or session layer.
+A thorough audit reports what held, not only what failed. The controls below were tested and confirmed sound. They establish that the **identity mechanism is cryptographically enforced**: the signed cookie and the case token are both verified server-side, so neither role forgery via the cookie nor case-token spoofing is available. **Session lifecycle is weaker** — logout does not revoke the session server-side (FINDING-016). So the access-control failures documented above are failures of **authorization after a valid identity is established**, not failures of identity verification itself. This sharpens the risk model and points the primary fix at server-side authorization.
 
-**PC-01 — Role-session cookie integrity is enforced.** The `iris_role_session` cookie is an `itsdangerous`-signed `<role>.<ts>.<sig>` value. Tampering the role id without re-signing (e.g., 273 → 275) is rejected with `401 Invalid Session`, so the signature is verified on every request. The signing secret also resisted a curated dictionary attack (46 candidate secrets including target-derived terms, × 8 salts × 3 key derivations), so it is not a trivial default. Role forgery via the cookie is not available.
+**PC-01 — Role-session cookie integrity is enforced.** The `iris_role_session` cookie is an `itsdangerous`-signed `<role>.<ts>.<sig>` value. Tampering the role id without re-signing (e.g., 273 → 275) is rejected with `401 Invalid session`, so the signature is verified on every request. The signing secret also resisted a curated dictionary attack (46 candidate secrets including target-derived terms, × 8 salts × 3 key derivations), so it is not a trivial default. Role forgery via the cookie is not available.
 
-**PC-02 — Logout invalidates the session server-side.** Reusing a captured cookie after `POST /api/auth/logout` returns `401 Not logged in` — distinct from the `Invalid Session` signature error — indicating the server tracks active sessions beyond the signed cookie. The signed cookie is necessary but not sufficient, so a captured session can be revoked. This is correct revocation behavior that stateless signed-cookie designs frequently get wrong.
+**PC-03 — The case token is validated server-side.** Tampering a single character of the `X-Case-Token` returns `401 Invalid case token`, so the token is not decorative. (Residual, tracked separately: the token is also accepted as a `?t=` query parameter — an exposure concern in logs, history, and referer headers, not a validation gap.)
 
-**PC-03 — The case token is validated server-side.** Tampering a single character of the `X-Case-Token` returns `401 Invalid Case Token`, so the token is not decorative. (Residual, tracked separately: the token is also accepted as a `?t=` query parameter — an exposure concern in logs, history, and referer headers, not a validation gap.)
-
-These three are **green regression guards** in the suite: a future change that stops verifying the cookie signature, drops server-side logout invalidation, or weakens case-token validation must turn one of these tests red.
+These two (PC-01, PC-03) are **green regression guards** in the suite: a future change that stops verifying the cookie signature or weakens case-token validation must turn one of these tests red. The former third probe, session revocation on logout, is not a control — it is **FINDING-016**, and its test asserts the secure behavior and is red because logout does not revoke.
 
 ---
 
@@ -394,14 +410,16 @@ These three are **green regression guards** in the suite: a future change that s
 
 ---
 
-## 5. Methodology (draft — to be finalized at ~400 words)
+## 5. Methodology
 
 The engagement opened with a product model rather than immediate probing: the public brief and the OpenAPI specification were used to build an RST-style coverage outline (what the product is, who its users are, where its oracles live), which surfaced two primary axes — QE Index integrity and authentication/authorization — with state-machine, IDOR, mass-assignment, and undocumented-surface risks nested beneath them.
 
 Prioritization followed risk and the brief's stated objectives. The authorization axis was tested first because the specification declared no security schemes, meaning every `/api/admin/*` endpoint had to be exercised per role against the role matrix as the oracle. The audit endpoint was chosen as the first sensitive probe because it both tests access and tends to leak escalation material — which it did.
 
-*To complete: tools used, coverage achieved, what was deliberately deferred, and what would be tested next given more time (state-machine bypass on the session lifecycle, IDOR on subject/session ids, the QE recomputation, and the console/notice path).*
+**Tools and technique.** The surface is almost entirely API, so the primary instruments were `curl` and Postman against the documented endpoints, with the Swagger/OpenAPI document as the map. Identity behavior was probed by tampering the `itsdangerous`-signed `iris_role_session` cookie and the `X-Case-Token` directly. The minified SPA bundle (`index-CFxnvq0z.js`) was analyzed with Python (regex over the source) to recover front-end constants (the hardcoded 87.4), the legacy-console secrets behind FINDING-013, and the component wiring behind the UI findings. The QE Index was recomputed independently from the Director observation-report export, which carries the per-session `outcome_value` and `welfare_coefficient` the public schema omits. Findings were then encoded as a data-driven Playwright + TypeScript suite, on a deliberate convention: a security test asserts the *correct* behavior and is therefore red against the vulnerable deploy, while confirmed-secure controls stay green. Two oracle disciplines mattered: authorization expectations come from the brief's role matrix (intent), never from the server's own 403 messages (which bake in the permissive bugs); and lifecycle rejection is judged primarily by reading the state back (unchanged), with HTTP status as the secondary signal. Writes were probed against non-existent ids, so nothing real was mutated.
+
+**Coverage and deferrals.** Both axes were covered to confirmation: the full admin read/write surface per role, subject and session IDOR, the missing PATCH/DELETE guards, the lifecycle precondition bypass, the predictable credential scheme, the undocumented legacy console, the QE recomputation, and the disbursement path. The Director credential was recovered via FINDING-002; the Chief Scientist (role 275) password was never cracked — the privileged console was instead reached through the client-recoverable PHINEAS signing key. Deliberately out of scope for this engagement: load and performance, accessibility, and cross-browser behavior. Left open by time: enumerating the legacy `LIST`/`READ` scope behind FINDING-013 (its severity rises if modern or sensitive records are reachable), confirming server-side `max_age` enforcement on the session cookie (FINDING-016), a full IDOR sweep across chambers/apparatus/sessions rather than subjects alone, over-posting on the create surface, and pinning the corrected QE band with the PI-gated legitimate Q4 cutoff and real per-chamber multipliers.
 
 ---
 
-*Living document. Findings are confirmed against the deployed system unless marked otherwise.*
+*Findings are confirmed against the deployed system unless marked otherwise.*

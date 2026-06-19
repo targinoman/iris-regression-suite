@@ -1,4 +1,5 @@
 import { test, expect } from '../../src/fixtures';
+import { ROLE_PASSWORDS } from '../../src/config';
 import { ReportsPage } from '../../src/pages/ReportsPage';
 
 /**
@@ -7,15 +8,19 @@ import { ReportsPage } from '../../src/pages/ReportsPage';
  * (must trigger an export → intentional red). "Operator format" has no interactive control
  * and no backing endpoint, so it is documented as a vestigial gap rather than asserted.
  *
- * Director-dependent: skipped without DIRECTOR_PASSWORD.
+ * Director-dependent (export is reserved to Director). The guard below runs before the
+ * directorPage fixture is instantiated, so without DIRECTOR_PASSWORD these skip cleanly.
  */
 test.describe('FINDING-015 — report export formats (browser)', () => {
+  test.beforeEach(() => {
+    test.skip(!ROLE_PASSWORDS.director, 'requires DIRECTOR_PASSWORD (export is Director-tier)');
+  });
+
   test('[FINDING-015] Export CSV produces a downloadable artifact (positive control)', async ({
     directorPage,
   }) => {
     if (directorPage === null) {
-      test.skip(true, 'DIRECTOR_PASSWORD not set — UI tests need a Director session');
-      return;
+      throw new Error('director page unavailable despite DIRECTOR_PASSWORD being set');
     }
     const reports = new ReportsPage(directorPage);
     await reports.goto();
@@ -29,8 +34,7 @@ test.describe('FINDING-015 — report export formats (browser)', () => {
 
   test('[FINDING-015] Export PDF must trigger an export', async ({ directorPage }) => {
     if (directorPage === null) {
-      test.skip(true, 'DIRECTOR_PASSWORD not set — UI tests need a Director session');
-      return;
+      throw new Error('director page unavailable despite DIRECTOR_PASSWORD being set');
     }
     const reports = new ReportsPage(directorPage);
     await reports.goto();

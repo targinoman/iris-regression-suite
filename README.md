@@ -114,7 +114,7 @@ tests/
   session-collision.spec.ts id-collision contract (API positive control)
   audit-logging.spec.ts     FINDING-010 (fixme)
   console-auth.spec.ts      FINDING-013 (skip)
-  auth-integrity/           PC-01..03 security regression guards (expected green)
+  auth-integrity/           PC-01/PC-03 security regression guards (green) + FINDING-016 (red)
   ui/                       *.browser.spec.ts — the UI findings (009, 011, 012, 014, 015)
   qe-index.browser.spec.ts  FINDING-004 (public index, browser)
 ```
@@ -160,11 +160,11 @@ Decision tables A and B mean each rule has at least one case; counts below are t
 | **011** Dead dashboard approve | dashboard Approve must call the approve API | `ui/dashboard-approvals.browser.spec.ts` | 🔴 (as **Senior** — brief: "approve and manage") |
 | **012** Swapped tooltips | each control's tooltip matches its action | `ui/approvals-tooltips.browser.spec.ts` | 🔴 (as **Senior** — brief: "approve and manage") |
 | **013** Client-recoverable console auth | privileged console actions need a non-client-derivable secret | `console-auth.spec.ts` | ⏭️ `skip` (design gap) |
-| **014** Activity feed overflow | the feed must not overflow its container | `ui/activity-feed-overflow.browser.spec.ts` | 🔴 (Director-dependent) |
+| **014** Activity feed overflow | long feed values must not break the layout | `ui/activity-feed-overflow.browser.spec.ts` | ⏭️ `skip` (documented gap — depends on a non-harness-controllable seeded entry; see FINDING-010) |
 | **015** Missing export formats | CSV downloads (control); PDF must export; operator format documented | `ui/reports-export.browser.spec.ts` | CSV 🟢 / PDF 🔴 / operator ⏭️ |
-| **PC-01** Cookie signature enforced | tampered role (and empty/no signature) → `401 Invalid Session` | `auth-integrity/cookie-integrity.spec.ts` | 🟢 guard |
-| **PC-02** Server-side logout | a cookie reused after logout → `401 Not logged in` | `auth-integrity/session-revocation.spec.ts` | 🟢 guard |
-| **PC-03** Case-token validation | a tampered `X-Case-Token` → `401 Invalid Case Token` | `auth-integrity/case-token.spec.ts` | 🟢 guard |
+| **PC-01** Cookie signature enforced | tampered role (and empty/no signature) → `401` (detail matches `/invalid session/i`) | `auth-integrity/cookie-integrity.spec.ts` | 🟢 guard |
+| **PC-03** Case-token validation | a tampered `X-Case-Token` → `401` (detail matches `/invalid case token/i`) | `auth-integrity/case-token.spec.ts` | 🟢 guard |
+| **016** Logout not server-side | a cookie reused after logout must be rejected (`401`) | `auth-integrity/session-revocation.spec.ts` | 🔴 (logout does not revoke; returns 200 today) |
 
 `harness-health.spec.ts` adds `[CONTROL]` checks that the per-role storageState yields an
 authenticated session — green proves the harness, not the product.

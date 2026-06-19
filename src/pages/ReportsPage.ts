@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { gotoAdminSection } from './spaNavigation';
 
 /**
  * Page object for the Reports / Export view (/admin/reports). CSV is wrapped in a real
@@ -6,12 +7,10 @@ import { Locator, Page } from '@playwright/test';
  * non-actionable control. Locators live here.
  */
 export class ReportsPage {
-  static readonly PATH = '/admin/reports';
-
   constructor(private readonly page: Page) {}
 
   async goto(): Promise<void> {
-    await this.page.goto(ReportsPage.PATH);
+    await gotoAdminSection(this.page, 'Reports');
   }
 
   /** Export CSV is an anchor (role "link") that downloads the report. */

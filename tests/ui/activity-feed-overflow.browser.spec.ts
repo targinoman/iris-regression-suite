@@ -1,34 +1,23 @@
-import { test, expect } from '../../src/fixtures';
-import { DashboardPage } from '../../src/pages/DashboardPage';
+import { test } from '../../src/fixtures';
 
 /**
- * FINDING-014 — the dashboard "Recent activity" feed renders raw field values with no
- * truncation or wrapping, so a long value (the 64-char case token in the reward-disbursed
- * entry) overflows the panel. Correct behavior: long values are truncated/wrapped within
- * the container, so the feed does not overflow horizontally. Today it overflows → red.
+ * FINDING-014 — the dashboard "Recent activity" feed does not constrain long field values
+ * (the 64-char case token in the reward-disbursed entry overflows the panel). This is a
+ * confirmed UI finding, but it has no reliable automated oracle here, so it is documented
+ * as a known gap rather than asserted (a green here would be a weak oracle, not a fix):
  *
- * Oracle note: this relies on the live feed containing the long-value entry the audit
- * describes; the audit confirms it is present. Director-dependent.
+ *  - The feed renders entries from the audit log, which is static seed data and is NOT
+ *    updated by API/UI actions (FINDING-010). So the harness cannot create or guarantee the
+ *    long-value entry the overflow depends on — it is environment/seed-dependent.
+ *  - When the entry is present, the card grows to fit the value, so the overflow is absorbed
+ *    by the layout; horizontal-overflow measurement on the card / content area / document did
+ *    not reliably detect it (the run returned no overflow).
+ *
+ * Re-enable with a precise assertion once the long-value entry is guaranteed in the feed and
+ * the exact overflowing element is identified from the live DOM.
  */
-test.describe('FINDING-014 — activity feed overflow (browser)', () => {
-  test('[FINDING-014] the Recent activity feed must not overflow its container horizontally', async ({
-    directorPage,
-  }) => {
-    if (directorPage === null) {
-      test.skip(true, 'DIRECTOR_PASSWORD not set — UI tests need a Director session');
-      return;
-    }
-
-    const dashboard = new DashboardPage(directorPage);
-    await dashboard.goto();
-
-    const card = dashboard.recentActivityCard();
-    await expect(card, 'the Recent activity feed should render').toBeVisible();
-
-    const overflowPx = await card.evaluate((el) => el.scrollWidth - el.clientWidth);
-    expect(
-      overflowPx,
-      'long field values must be truncated or wrapped within the feed container (no horizontal overflow)',
-    ).toBeLessThanOrEqual(1);
+test.describe('FINDING-014 — activity feed overflow (documented UI gap)', () => {
+  test.skip('[FINDING-014] long field values in the Recent activity feed must not break the layout', async () => {
+    // Intentionally unimplemented: see the describe-level note. No fabricated green/red oracle.
   });
 });

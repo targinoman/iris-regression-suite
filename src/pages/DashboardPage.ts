@@ -1,31 +1,27 @@
 import { Locator, Page } from '@playwright/test';
-import { escapeRegExp } from '../utils/regex';
+import { gotoAdminSection } from './spaNavigation';
 
 /**
- * Page object for the admin dashboard (/admin/dashboard). Locators live here; the
- * pending-approval rows render the action "Approve session <id>" and an Approve/Reject
- * button pair, so a row's controls are addressed by the session id in the accessible name.
+ * Page object for the admin dashboard, which is the admin SPA's index route ("/admin").
+ * Everything is anchored to the route's stable root testid `route-admin-dashboard`, because
+ * the SPA reuses class names (e.g. `divide-y`) across routes. On the dashboard every Approve
+ * control is dead (FINDING-011), so any of them proves the defect.
  */
 export class DashboardPage {
-  static readonly PATH = '/admin/dashboard';
-
   constructor(private readonly page: Page) {}
 
+  private root(): Locator {
+    return this.page.locator('[data-testid="route-admin-dashboard"]');
+  }
+
   async goto(): Promise<void> {
-    await this.page.goto(DashboardPage.PATH);
+    // Reach the dashboard via a real NavLink click so its router loader runs correctly.
+    await gotoAdminSection(this.page, 'Dashboard');
+    await this.root().waitFor({ state: 'visible', timeout: 15000 });
   }
 
-  /** The Approve button in the Pending approvals list for a given session id. */
-  approveButton(sessionId: string): Locator {
-    return this.page.getByRole('button', {
-      name: new RegExp(`^Approve\\b.*${escapeRegExp(sessionId)}`),
-    });
-  }
-
-  /** The "Recent activity" feed card (the divide-y panel following the heading). */
-  recentActivityCard(): Locator {
-    return this.page
-      .getByText('Recent activity', { exact: true })
-      .locator('xpath=following::div[contains(@class,"divide-y")][1]');
+  /** Any Approve button in the Pending approvals list (accessible name starts with "Approve"). */
+  anyApproveButton(): Locator {
+    return this.root().getByRole('button', { name: /^Approve/ }).first();
   }
 }
