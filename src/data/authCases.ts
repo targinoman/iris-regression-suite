@@ -1,0 +1,626 @@
+import { Tier } from '../roles';
+import { AuthCase } from '../engine/authCase';
+import { KNOWN_CHAMBER_ID, KNOWN_SESSION_ID } from '../config';
+
+/**
+ * Decision-table A, expressed as data. Each row is one authorization expectation;
+ * adding coverage means adding a row. Security rows assert the safe behavior (red
+ * against the current vulnerable deploy); control rows assert already-correct behavior
+ * (green, proving the harness can detect a working role check).
+ */
+export const authCases: AuthCase[] = [
+  // ---------------------------------------------------------------------------
+  // Positive control: methodology already enforces Director-tier (expected green).
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-methodology-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/methodology requires Director (positive control)',
+    method: 'GET',
+    pathTemplate: '/api/admin/methodology',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'read',
+    control: true,
+  },
+  {
+    id: 'AUTH-methodology-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/methodology requires Director (positive control)',
+    method: 'GET',
+    pathTemplate: '/api/admin/methodology',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'read',
+    control: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // FINDING-003 — read surface reachable by the lowest role (Subject). Tiers per the brief
+  // role matrix: Junior gets "subject and chamber lists"; sessions/apparatus are Senior+
+  // (Senior "manage sessions"). Subject (tier 1) is below all of these → expected denied;
+  // today returns 200 → intentional red. (Only Subject is probed here, so raising
+  // apparatus/sessions to Senior sharpens the label without changing the verdict.)
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-subjects-list-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/subjects requires Junior',
+    method: 'GET',
+    pathTemplate: '/api/admin/subjects',
+    requiredTier: Tier.Junior,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-chambers-list-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/chambers requires Junior',
+    method: 'GET',
+    pathTemplate: '/api/admin/chambers',
+    requiredTier: Tier.Junior,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-chamber-read-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/chambers/{id} requires Junior',
+    method: 'GET',
+    pathTemplate: '/api/admin/chambers/{id}',
+    requiredTier: Tier.Junior,
+    caller: 'subject',
+    probe: 'read',
+    probeId: KNOWN_CHAMBER_ID,
+    control: false,
+  },
+  {
+    id: 'AUTH-apparatus-list-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/apparatus requires Senior (brief: Junior gets subject/chamber lists only)',
+    method: 'GET',
+    pathTemplate: '/api/admin/apparatus',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-sessions-list-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/sessions requires Senior (brief: session management is Senior)',
+    method: 'GET',
+    pathTemplate: '/api/admin/sessions',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-session-read-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/sessions/{id} requires Senior (brief: session management is Senior)',
+    method: 'GET',
+    pathTemplate: '/api/admin/sessions/{id}',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'read',
+    probeId: KNOWN_SESSION_ID,
+    control: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // FINDING-003 — Director-tier read surface reachable by Subject and Junior.
+  // (audit read by Junior is the FINDING-001 headline.)
+  // Expected: both denied; today returns 200 → intentional red.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-dashboard-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/dashboard requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/dashboard',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-dashboard-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/dashboard requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/dashboard',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-audit-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/audit requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/audit',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-audit-junior',
+    finding: 'FINDING-001',
+    rule: 'Table A: GET /api/admin/audit requires Director (Junior must not read the audit log)',
+    method: 'GET',
+    pathTemplate: '/api/admin/audit',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-export-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/reports/export requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/reports/export',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-export-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/reports/export requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/reports/export',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-legacy-exclusions-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/v1/legacy/exclusions requires Director',
+    method: 'GET',
+    pathTemplate: '/api/v1/legacy/exclusions',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-legacy-exclusions-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/v1/legacy/exclusions requires Director',
+    method: 'GET',
+    pathTemplate: '/api/v1/legacy/exclusions',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'read',
+    control: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // FINDING-006 — PATCH/DELETE on subjects/{id} lack the Director-tier guard.
+  // Probed against a non-existent id so nothing is mutated. Expected: denied;
+  // today returns 404 (guard absent, should be 403) → intentional red.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-subject-patch-junior',
+    finding: 'FINDING-006',
+    rule: 'Table A: PATCH /api/admin/subjects/{id} requires Director',
+    method: 'PATCH',
+    pathTemplate: '/api/admin/subjects/{id}',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-subject-patch-subject',
+    finding: 'FINDING-006',
+    rule: 'Table A: PATCH /api/admin/subjects/{id} requires Director',
+    method: 'PATCH',
+    pathTemplate: '/api/admin/subjects/{id}',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-subject-delete-junior',
+    finding: 'FINDING-006',
+    rule: 'Table A: DELETE /api/admin/subjects/{id} requires Director',
+    method: 'DELETE',
+    pathTemplate: '/api/admin/subjects/{id}',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-subject-delete-subject',
+    finding: 'FINDING-006',
+    rule: 'Table A: DELETE /api/admin/subjects/{id} requires Director',
+    method: 'DELETE',
+    pathTemplate: '/api/admin/subjects/{id}',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // FINDING-006 positive control — reassign lives on the same resource, is also
+  // Director-tier and mutating, and already returns 403 to lower roles (green).
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-subject-reassign-junior',
+    finding: 'FINDING-006',
+    rule: 'Table A: POST /api/admin/subjects/{id}/reassign requires Director (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/subjects/{id}/reassign',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-subject-reassign-subject',
+    finding: 'FINDING-006',
+    rule: 'Table A: POST /api/admin/subjects/{id}/reassign requires Director (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/subjects/{id}/reassign',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // FINDING-003 write surface — Senior-tier approve/reject/cancel already gated
+  // (return 403 to lower roles) → positive controls (green).
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-session-approve-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/approve requires Senior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/approve',
+    requiredTier: Tier.Senior,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-approve-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/approve requires Senior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/approve',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-reject-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/reject requires Senior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/reject',
+    requiredTier: Tier.Senior,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-reject-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/reject requires Senior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/reject',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-cancel-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/cancel requires Senior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/cancel',
+    requiredTier: Tier.Senior,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-cancel-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/cancel requires Senior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/cancel',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // FINDING-007 authorization aspect — start/complete are Senior-tier but reach
+  // Junior today. Subject is already denied (green); Junior is the intentional red
+  // (today passes the role check → 404 on the non-existent id).
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-session-start-junior',
+    finding: 'FINDING-007',
+    rule: 'Table A: POST /api/admin/sessions/{id}/start requires Senior (must not reach Junior)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/start',
+    requiredTier: Tier.Senior,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-session-start-subject',
+    finding: 'FINDING-007',
+    rule: 'Table A: POST /api/admin/sessions/{id}/start requires Senior',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/start',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-session-complete-junior',
+    finding: 'FINDING-007',
+    rule: 'Table A: POST /api/admin/sessions/{id}/complete requires Senior (must not reach Junior)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/complete',
+    requiredTier: Tier.Senior,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-session-complete-subject',
+    finding: 'FINDING-007',
+    rule: 'Table A: POST /api/admin/sessions/{id}/complete requires Senior',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/complete',
+    requiredTier: Tier.Senior,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // issue-token positive control — Director-tier, already denies lower roles (green).
+  // candidate_name is supplied so a missing-param 422 does not mask the role check.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-issue-token-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/issue-token requires Director (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/issue-token?candidate_name=regression-probe',
+    requiredTier: Tier.Director,
+    caller: 'junior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-issue-token-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/issue-token requires Director (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/issue-token?candidate_name=regression-probe',
+    requiredTier: Tier.Director,
+    caller: 'subject',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // POST /sessions creation — Junior-tier gate. Subject is denied (positive control);
+  // Junior passes authorization and an invalid body yields 422 (allow control, green).
+  // Both use an invalid body so nothing is created.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-session-create-subject',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions requires Junior (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions',
+    requiredTier: Tier.Junior,
+    caller: 'subject',
+    probe: 'create-invalid-body',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-create-junior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions allows Junior (allow control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions',
+    requiredTier: Tier.Junior,
+    caller: 'junior',
+    probe: 'create-invalid-body',
+    control: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Senior allow controls — Senior meets the Senior tier and must reach past the
+  // role gate on the session workflow (probed against a non-existent id, so the
+  // authorized caller surfaces as 404, not a real mutation). Expected: not denied.
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-session-approve-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/approve allows Senior (allow control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/approve',
+    requiredTier: Tier.Senior,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-reject-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/reject allows Senior (allow control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/reject',
+    requiredTier: Tier.Senior,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-cancel-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/sessions/{id}/cancel allows Senior (allow control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/cancel',
+    requiredTier: Tier.Senior,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-start-senior',
+    finding: 'FINDING-007',
+    rule: 'Table A: POST /api/admin/sessions/{id}/start allows Senior, the intended owner (allow control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/start',
+    requiredTier: Tier.Senior,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-session-complete-senior',
+    finding: 'FINDING-007',
+    rule: 'Table A: POST /api/admin/sessions/{id}/complete allows Senior, the intended owner (allow control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/sessions/{id}/complete',
+    requiredTier: Tier.Senior,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Senior denials on the Director-tier surface — Senior (tier 3) is below Director.
+  // Reads and PATCH/DELETE are intentional reds (open today); methodology/reassign/
+  // issue-token are positive controls (already deny).
+  // ---------------------------------------------------------------------------
+  {
+    id: 'AUTH-dashboard-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/dashboard requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/dashboard',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-audit-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/audit requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/audit',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-export-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/reports/export requires Director',
+    method: 'GET',
+    pathTemplate: '/api/admin/reports/export',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-legacy-exclusions-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/v1/legacy/exclusions requires Director',
+    method: 'GET',
+    pathTemplate: '/api/v1/legacy/exclusions',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'read',
+    control: false,
+  },
+  {
+    id: 'AUTH-methodology-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: GET /api/admin/methodology requires Director (positive control)',
+    method: 'GET',
+    pathTemplate: '/api/admin/methodology',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'read',
+    control: true,
+  },
+  {
+    id: 'AUTH-subject-patch-senior',
+    finding: 'FINDING-006',
+    rule: 'Table A: PATCH /api/admin/subjects/{id} requires Director',
+    method: 'PATCH',
+    pathTemplate: '/api/admin/subjects/{id}',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-subject-delete-senior',
+    finding: 'FINDING-006',
+    rule: 'Table A: DELETE /api/admin/subjects/{id} requires Director',
+    method: 'DELETE',
+    pathTemplate: '/api/admin/subjects/{id}',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: false,
+  },
+  {
+    id: 'AUTH-subject-reassign-senior',
+    finding: 'FINDING-006',
+    rule: 'Table A: POST /api/admin/subjects/{id}/reassign requires Director (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/subjects/{id}/reassign',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+  {
+    id: 'AUTH-issue-token-senior',
+    finding: 'FINDING-003',
+    rule: 'Table A: POST /api/admin/issue-token requires Director (positive control)',
+    method: 'POST',
+    pathTemplate: '/api/admin/issue-token?candidate_name=regression-probe',
+    requiredTier: Tier.Director,
+    caller: 'senior',
+    probe: 'write-nonexistent-id',
+    control: true,
+  },
+];

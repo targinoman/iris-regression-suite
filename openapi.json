@@ -1,0 +1,1943 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Iris Sciences API",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "operationId": "login_api_auth_login_post",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_login_api_auth_login_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Login Api Auth Login Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "operationId": "logout_api_auth_logout_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Logout Api Auth Logout Post"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Me",
+                "operationId": "me_api_auth_me_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Me Api Auth Me Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/roles": {
+            "get": {
+                "tags": [
+                    "roles"
+                ],
+                "summary": "List Roles",
+                "description": "Returns ALL roles for this candidate's case — including the undocumented Chief Scientist.\n\nThe candidate's intake brief lists six roles; this endpoint returns seven.\nDiagnostic for trait curiosity / API probing.",
+                "operationId": "list_roles_api_admin_roles_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/RoleOut"
+                                    },
+                                    "type": "array",
+                                    "title": "Response List Roles Api Admin Roles Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/subjects": {
+            "get": {
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "List Subjects",
+                "operationId": "list_subjects_api_admin_subjects_get",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/SubjectStatus"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Status"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Q"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 500,
+                            "minimum": 1,
+                            "default": 50,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SubjectOut"
+                                    },
+                                    "title": "Response List Subjects Api Admin Subjects Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/subjects/{subject_id}": {
+            "get": {
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "Get Subject",
+                "operationId": "get_subject_api_admin_subjects__subject_id__get",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Subject Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "Delete Subject",
+                "operationId": "delete_subject_api_admin_subjects__subject_id__delete",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Subject Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "Patch Subject",
+                "operationId": "patch_subject_api_admin_subjects__subject_id__patch",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Subject Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubjectPatch"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/subjects/{subject_id}/reassign": {
+            "post": {
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "Reassign Subject",
+                "operationId": "reassign_subject_api_admin_subjects__subject_id__reassign_post",
+                "parameters": [
+                    {
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Subject Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReassignPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubjectOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/chambers": {
+            "get": {
+                "tags": [
+                    "chambers"
+                ],
+                "summary": "List Chambers",
+                "operationId": "list_chambers_api_admin_chambers_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ChamberOut"
+                                    },
+                                    "type": "array",
+                                    "title": "Response List Chambers Api Admin Chambers Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/chambers/{chamber_id}": {
+            "get": {
+                "tags": [
+                    "chambers"
+                ],
+                "summary": "Get Chamber",
+                "operationId": "get_chamber_api_admin_chambers__chamber_id__get",
+                "parameters": [
+                    {
+                        "name": "chamber_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chamber Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChamberOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions": {
+            "get": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "List Sessions",
+                "operationId": "list_sessions_api_admin_sessions_get",
+                "parameters": [
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/SessionState"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "State"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 500,
+                            "minimum": 1,
+                            "default": 50,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Page"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TestSessionOut"
+                                    },
+                                    "title": "Response List Sessions Api Admin Sessions Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Schedule Session",
+                "operationId": "schedule_session_api_admin_sessions_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TestSessionCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions/{session_id}": {
+            "get": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Get Session",
+                "operationId": "get_session_api_admin_sessions__session_id__get",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions/{session_id}/approve": {
+            "post": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Approve Session",
+                "operationId": "approve_session_api_admin_sessions__session_id__approve_post",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions/{session_id}/reject": {
+            "post": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Reject Session",
+                "operationId": "reject_session_api_admin_sessions__session_id__reject_post",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions/{session_id}/start": {
+            "post": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Start Session",
+                "operationId": "start_session_api_admin_sessions__session_id__start_post",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions/{session_id}/complete": {
+            "post": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Complete Session",
+                "operationId": "complete_session_api_admin_sessions__session_id__complete_post",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/sessions/{session_id}/cancel": {
+            "post": {
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Cancel Session",
+                "operationId": "cancel_session_api_admin_sessions__session_id__cancel_post",
+                "parameters": [
+                    {
+                        "name": "session_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Session Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestSessionOut"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/audit": {
+            "get": {
+                "tags": [
+                    "audit"
+                ],
+                "summary": "List Audit",
+                "operationId": "list_audit_api_admin_audit_get",
+                "parameters": [
+                    {
+                        "name": "severity",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Severity"
+                        }
+                    },
+                    {
+                        "name": "actor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Actor"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 500,
+                            "minimum": 1,
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0,
+                            "title": "Offset"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AuditEntryOut"
+                                    },
+                                    "title": "Response List Audit Api Admin Audit Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/apparatus": {
+            "get": {
+                "tags": [
+                    "apparatus"
+                ],
+                "summary": "List Apparatus",
+                "operationId": "list_apparatus_api_admin_apparatus_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApparatusOut"
+                                    },
+                                    "type": "array",
+                                    "title": "Response List Apparatus Api Admin Apparatus Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/dashboard": {
+            "get": {
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Dashboard",
+                "operationId": "dashboard_api_admin_dashboard_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DashboardOut"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/legacy/exclusions": {
+            "get": {
+                "tags": [
+                    "legacy"
+                ],
+                "summary": "Legacy Exclusions",
+                "operationId": "legacy_exclusions_api_v1_legacy_exclusions_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Legacy Exclusions Api V1 Legacy Exclusions Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/methodology": {
+            "get": {
+                "tags": [
+                    "methodology"
+                ],
+                "summary": "Methodology",
+                "operationId": "methodology_api_admin_methodology_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MethodologyOut"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/console": {
+            "post": {
+                "tags": [
+                    "console"
+                ],
+                "summary": "Post Console",
+                "operationId": "post_console_api_console_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConsoleRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsoleResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/reports/export": {
+            "get": {
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Export Csv",
+                "operationId": "export_csv_api_admin_reports_export_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/issue-token": {
+            "post": {
+                "summary": "Admin Issue Token",
+                "operationId": "admin_issue_token_api_admin_issue_token_post",
+                "parameters": [
+                    {
+                        "name": "candidate_name",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Candidate Name"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Admin Issue Token Api Admin Issue Token Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/health": {
+            "get": {
+                "summary": "Health",
+                "operationId": "health_api_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Health Api Health Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApparatusOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model"
+                    },
+                    "install_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Install Date"
+                    },
+                    "last_calibrated": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Calibrated"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "allocated_to_chamber_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Allocated To Chamber Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "model",
+                    "install_date",
+                    "status"
+                ],
+                "title": "ApparatusOut"
+            },
+            "AuditEntryOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "severity": {
+                        "$ref": "#/components/schemas/IncidentSeverity"
+                    },
+                    "actor": {
+                        "type": "string",
+                        "title": "Actor"
+                    },
+                    "actor_role_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Actor Role Id"
+                    },
+                    "action": {
+                        "type": "string",
+                        "title": "Action"
+                    },
+                    "target_kind": {
+                        "type": "string",
+                        "title": "Target Kind"
+                    },
+                    "target_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Target Id"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Timestamp"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "title": "Notes"
+                    },
+                    "attachment_path": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Attachment Path"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "severity",
+                    "actor",
+                    "action",
+                    "target_kind",
+                    "timestamp",
+                    "notes"
+                ],
+                "title": "AuditEntryOut"
+            },
+            "Body_login_api_auth_login_post": {
+                "properties": {
+                    "role_id": {
+                        "type": "string",
+                        "title": "Role Id",
+                        "description": "Numeric DB id or RoleName slug"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role_id",
+                    "password"
+                ],
+                "title": "Body_login_api_auth_login_post"
+            },
+            "ChamberOperationalStatus": {
+                "type": "string",
+                "enum": [
+                    "online",
+                    "maintenance",
+                    "decommissioned"
+                ],
+                "title": "ChamberOperationalStatus"
+            },
+            "ChamberOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChamberType"
+                    },
+                    "operational_status": {
+                        "$ref": "#/components/schemas/ChamberOperationalStatus"
+                    },
+                    "hazard_class": {
+                        "type": "string",
+                        "title": "Hazard Class"
+                    },
+                    "wing": {
+                        "type": "string",
+                        "title": "Wing"
+                    },
+                    "apparatus_loadout": {
+                        "type": "string",
+                        "title": "Apparatus Loadout"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "type",
+                    "operational_status",
+                    "hazard_class",
+                    "wing",
+                    "apparatus_loadout"
+                ],
+                "title": "ChamberOut",
+                "description": "Identical shape for modern and legacy chambers — register is render-only,\ndetermined client-side by id regex (see chamberClassify.ts)."
+            },
+            "ChamberType": {
+                "type": "string",
+                "enum": [
+                    "momentum",
+                    "fluids",
+                    "cognitive",
+                    "cooperative",
+                    "legacy"
+                ],
+                "title": "ChamberType"
+            },
+            "ConsoleRequest": {
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "title": "Command"
+                    },
+                    "args": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "maxItems": 8,
+                        "title": "Args"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "command"
+                ],
+                "title": "ConsoleRequest"
+            },
+            "ConsoleResponse": {
+                "properties": {
+                    "lines": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Lines"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/ConsoleState"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "lines",
+                    "state"
+                ],
+                "title": "ConsoleResponse"
+            },
+            "ConsoleState": {
+                "properties": {
+                    "auth": {
+                        "type": "string",
+                        "enum": [
+                            "guest",
+                            "halberg"
+                        ],
+                        "title": "Auth",
+                        "default": "guest"
+                    },
+                    "filed": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/NoticePayload"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "title": "ConsoleState"
+            },
+            "DashboardOut": {
+                "properties": {
+                    "qe_index": {
+                        "type": "number",
+                        "title": "Qe Index"
+                    },
+                    "sessions_counted": {
+                        "type": "integer",
+                        "title": "Sessions Counted"
+                    },
+                    "cutoff": {
+                        "type": "string",
+                        "title": "Cutoff"
+                    },
+                    "legacy_multiplier": {
+                        "type": "number",
+                        "title": "Legacy Multiplier"
+                    },
+                    "exclusions_applied": {
+                        "type": "integer",
+                        "title": "Exclusions Applied"
+                    },
+                    "subjects_total": {
+                        "type": "integer",
+                        "title": "Subjects Total"
+                    },
+                    "chambers_in_service": {
+                        "type": "integer",
+                        "title": "Chambers In Service"
+                    },
+                    "open_incidents": {
+                        "type": "integer",
+                        "title": "Open Incidents"
+                    },
+                    "pending_approvals": {
+                        "type": "integer",
+                        "title": "Pending Approvals"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "qe_index",
+                    "sessions_counted",
+                    "cutoff",
+                    "legacy_multiplier",
+                    "exclusions_applied",
+                    "subjects_total",
+                    "chambers_in_service",
+                    "open_incidents",
+                    "pending_approvals"
+                ],
+                "title": "DashboardOut"
+            },
+            "FormulaUnknown": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "value": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Value"
+                    },
+                    "source": {
+                        "type": "string",
+                        "title": "Source"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "value",
+                    "source"
+                ],
+                "title": "FormulaUnknown"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "IncidentSeverity": {
+                "type": "string",
+                "enum": [
+                    "info",
+                    "warning",
+                    "error",
+                    "critical"
+                ],
+                "title": "IncidentSeverity"
+            },
+            "MethodologyOut": {
+                "properties": {
+                    "formula": {
+                        "type": "string",
+                        "title": "Formula"
+                    },
+                    "unknowns": {
+                        "items": {
+                            "$ref": "#/components/schemas/FormulaUnknown"
+                        },
+                        "type": "array",
+                        "title": "Unknowns"
+                    },
+                    "exclusions": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Exclusions"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "formula",
+                    "unknowns",
+                    "exclusions"
+                ],
+                "title": "MethodologyOut"
+            },
+            "NoticePayload": {
+                "properties": {
+                    "candidate_name": {
+                        "type": "string",
+                        "title": "Candidate Name"
+                    },
+                    "case_token": {
+                        "type": "string",
+                        "title": "Case Token"
+                    },
+                    "filed_at": {
+                        "type": "string",
+                        "title": "Filed At"
+                    },
+                    "notice_id": {
+                        "type": "string",
+                        "title": "Notice Id"
+                    },
+                    "declarations": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Declarations"
+                    },
+                    "stamps": {
+                        "items": {
+                            "$ref": "#/components/schemas/NoticeStamp"
+                        },
+                        "type": "array",
+                        "title": "Stamps"
+                    },
+                    "margin_note": {
+                        "type": "string",
+                        "title": "Margin Note",
+                        "default": ""
+                    },
+                    "footer_text": {
+                        "type": "string",
+                        "title": "Footer Text",
+                        "default": ""
+                    },
+                    "header_subtitle": {
+                        "type": "string",
+                        "title": "Header Subtitle",
+                        "default": ""
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "candidate_name",
+                    "case_token",
+                    "filed_at",
+                    "notice_id",
+                    "declarations"
+                ],
+                "title": "NoticePayload"
+            },
+            "NoticeStamp": {
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "title": "Text"
+                    },
+                    "variant": {
+                        "type": "string",
+                        "enum": [
+                            "confidential",
+                            "filed"
+                        ],
+                        "title": "Variant"
+                    },
+                    "rotation": {
+                        "type": "integer",
+                        "title": "Rotation"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "text",
+                    "variant",
+                    "rotation"
+                ],
+                "title": "NoticeStamp"
+            },
+            "ReassignPayload": {
+                "properties": {
+                    "new_wing": {
+                        "type": "string",
+                        "enum": [
+                            "A",
+                            "B",
+                            "Γ"
+                        ],
+                        "title": "New Wing"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "title": "Reason"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_wing",
+                    "reason"
+                ],
+                "title": "ReassignPayload"
+            },
+            "RoleOut": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "documented": {
+                        "type": "boolean",
+                        "title": "Documented"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "documented"
+                ],
+                "title": "RoleOut"
+            },
+            "SessionState": {
+                "type": "string",
+                "enum": [
+                    "draft",
+                    "pending-approval",
+                    "approved",
+                    "in-progress",
+                    "completed",
+                    "cancelled",
+                    "rejected"
+                ],
+                "title": "SessionState"
+            },
+            "SubjectOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "intake_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Intake Date"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SubjectStatus"
+                    },
+                    "eligibility_flags": {
+                        "type": "string",
+                        "title": "Eligibility Flags"
+                    },
+                    "current_wing": {
+                        "type": "string",
+                        "title": "Current Wing"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "intake_date",
+                    "status",
+                    "eligibility_flags",
+                    "current_wing"
+                ],
+                "title": "SubjectOut"
+            },
+            "SubjectPatch": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status"
+                    },
+                    "current_wing": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Current Wing"
+                    },
+                    "eligibility_flags": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Eligibility Flags"
+                    }
+                },
+                "additionalProperties": true,
+                "type": "object",
+                "title": "SubjectPatch"
+            },
+            "SubjectStatus": {
+                "type": "string",
+                "enum": [
+                    "active",
+                    "in-chamber",
+                    "post-test",
+                    "incidented",
+                    "reassigned",
+                    "voluntary-withdrawal"
+                ],
+                "title": "SubjectStatus"
+            },
+            "TestSessionCreate": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "subject_id": {
+                        "type": "string",
+                        "title": "Subject Id"
+                    },
+                    "chamber_id": {
+                        "type": "string",
+                        "title": "Chamber Id"
+                    },
+                    "scheduled_for": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Scheduled For"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "subject_id",
+                    "chamber_id",
+                    "scheduled_for"
+                ],
+                "title": "TestSessionCreate"
+            },
+            "TestSessionOut": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "subject_id": {
+                        "type": "string",
+                        "title": "Subject Id"
+                    },
+                    "chamber_id": {
+                        "type": "string",
+                        "title": "Chamber Id"
+                    },
+                    "observer_role_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Observer Role Id"
+                    },
+                    "scheduled_for": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Scheduled For"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/SessionState"
+                    },
+                    "completed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Completed At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "subject_id",
+                    "chamber_id",
+                    "scheduled_for",
+                    "state"
+                ],
+                "title": "TestSessionOut"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    },
+                    "input": {
+                        "title": "Input"
+                    },
+                    "ctx": {
+                        "type": "object",
+                        "title": "Context"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

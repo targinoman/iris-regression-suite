@@ -1,0 +1,10 @@
+# Secrets and session state — NEVER commit
+.env
+playwright/.auth/
+
+# Dependencies and Playwright artifacts
+node_modules/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
